@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "MHEducation–ChatGPT Assistant",
+  "version": "1.0",
+  "description": "Transfers a question from MHEducation to ChatGPT and then uses ChatGPT’s response to auto‐select an answer.",
+  "permissions": ["tabs", "scripting"],
+  "host_permissions": [
+    "https://learning.mheducation.com/*",
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://learning.mheducation.com/static/awd/*"],
+      "js": ["mheducation.js"]
+    },
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["chatgpt.js"]
+    }
+  ]
+}
