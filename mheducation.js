@@ -1,4 +1,5 @@
 let messageListener = null;
+let isAutomating = false;
 
 function setupMessageListener() {
   if (messageListener) {
@@ -57,6 +58,36 @@ function processChatGPTResponse(responseText) {
         }
       });
     }
+
+    if (isAutomating) {
+      waitForElement(
+        '[data-automation-id="confidence-buttons--high_confidence"]:not([disabled])',
+        10000
+      )
+        .then((button) => {
+          button.click();
+          return waitForElement(".next-button", 10000);
+        })
+        .then((nextButton) => {
+          nextButton.click();
+          setTimeout(() => {
+            const container = document.querySelector(".probe-container");
+            if (container && isAutomating) {
+              const qData = parseQuestion();
+              if (qData) {
+                chrome.runtime.sendMessage({
+                  type: "sendQuestionToChatGPT",
+                  question: qData,
+                });
+              }
+            }
+          }, 1000);
+        })
+        .catch((error) => {
+          console.error("Automation error:", error);
+          isAutomating = false;
+        });
+    }
   } catch (e) {
     console.error("Error processing response:", e);
   }
@@ -69,12 +100,24 @@ function addAssistantButton() {
     btn.style.marginLeft = "10px";
     btn.classList.add("btn", "btn-secondary");
     btn.addEventListener("click", () => {
-      const qData = parseQuestion();
-      if (qData) {
-        chrome.runtime.sendMessage({
-          type: "sendQuestionToChatGPT",
-          question: qData,
-        });
+      if (isAutomating) {
+        isAutomating = false;
+        btn.textContent = "Ask ChatGPT";
+      } else {
+        const proceed = confirm(
+          "Start automated answering? Click OK to begin, or Cancel to stop."
+        );
+        if (proceed) {
+          isAutomating = true;
+          btn.textContent = "Stop Automation";
+          const qData = parseQuestion();
+          if (qData) {
+            chrome.runtime.sendMessage({
+              type: "sendQuestionToChatGPT",
+              question: qData,
+            });
+          }
+        }
       }
     });
     headerNav.appendChild(btn);
