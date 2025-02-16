@@ -17,12 +17,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function insertQuestion(questionData) {
   const { type, question, options } = questionData;
   let text = `Type: ${type}\nQuestion: ${question}`;
-  if (options && options.length > 0) {
+
+  if (type === "matching") {
+    text +=
+      "\nPrompts:\n" +
+      options.prompts.map((prompt, i) => `${i + 1}. ${prompt}`).join("\n");
+    text +=
+      "\nChoices:\n" +
+      options.choices.map((choice, i) => `${i + 1}. ${choice}`).join("\n");
+    text +=
+      "\n\nPlease match each prompt with the correct choice. Format your answer as an array where each element is 'Prompt -> Choice'.";
+  } else if (options && options.length > 0) {
     text +=
       "\nOptions:\n" + options.map((opt, i) => `${i + 1}. ${opt}`).join("\n");
     text +=
       "\n\nIMPORTANT: Your answer must EXACTLY match one of the above options. Do not include numbers in your answer. If there are periods, include them.";
   }
+
   text +=
     '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation".';
 

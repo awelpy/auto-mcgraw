@@ -20,24 +20,26 @@ function setupMessageListener() {
 function processChatGPTResponse(responseText) {
   try {
     const response = JSON.parse(responseText);
-    const answer = Array.isArray(response.answer)
-      ? response.answer.map((a) => a.trim())
-      : response.answer.trim();
+    const answers = Array.isArray(response.answer)
+      ? response.answer
+      : [response.answer];
 
     const container = document.querySelector(".probe-container");
     if (!container) return;
 
-    if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
+    if (container.querySelector(".awd-probe-type-matching")) {
+      const matchingAnswers = answers;
+      handleMatchingQuestion(matchingAnswers);
+    } else if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
       const input = container.querySelector("input.fitb-input");
       if (input) {
-        input.value = answer;
+        input.value = answers[0];
         input.dispatchEvent(new Event("input", { bubbles: true }));
       }
     } else {
       const choices = container.querySelectorAll(
         'input[type="radio"], input[type="checkbox"]'
       );
-      const answers = Array.isArray(answer) ? answer : [answer];
 
       choices.forEach((choice) => {
         const label = choice.closest("label");
@@ -45,15 +47,9 @@ function processChatGPTResponse(responseText) {
           const choiceText = label
             .querySelector(".choiceText")
             ?.textContent.trim();
-          if (Array.isArray(answer)) {
-            const shouldBeSelected = answer.some((ans) => choiceText === ans);
-            if (shouldBeSelected) {
-              choice.click();
-            }
-          } else {
-            if (choiceText === answer) {
-              choice.click();
-            }
+          const shouldBeSelected = answers.some((ans) => choiceText === ans);
+          if (shouldBeSelected) {
+            choice.click();
           }
         }
       });
@@ -91,6 +87,64 @@ function processChatGPTResponse(responseText) {
   } catch (e) {
     console.error("Error processing response:", e);
   }
+}
+
+function handleMatchingQuestion(answers) {
+  const choicesContainer = document.querySelector(".choices-container");
+  const responseContainer = document.querySelector(".responses-container");
+
+  if (!choicesContainer || !responseContainer) return;
+
+  const choiceElements = Array.from(
+    choicesContainer.querySelectorAll(".choice-item-wrapper")
+  );
+  const dropZones = Array.from(
+    responseContainer.querySelectorAll(".match-single-response-wrapper")
+  );
+
+  answers.forEach((answer, index) => {
+    const [prompt, choice] = answer.split(" -> ").map((s) => s.trim());
+    const choiceElement = choiceElements.find(
+      (el) => el.querySelector(".content")?.textContent.trim() === choice
+    );
+
+    if (choiceElement && dropZones[index]) {
+      const rect = dropZones[index].getBoundingClientRect();
+
+      simulateDragDrop(choiceElement, dropZones[index], {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+      });
+    }
+  });
+}
+
+function simulateDragDrop(sourceElement, targetElement, coordinates) {
+  const dragStart = new DragEvent("dragstart", {
+    bubbles: true,
+    cancelable: true,
+    clientX: coordinates.clientX,
+    clientY: coordinates.clientY,
+  });
+
+  const drop = new DragEvent("drop", {
+    bubbles: true,
+    cancelable: true,
+    clientX: coordinates.clientX,
+    clientY: coordinates.clientY,
+  });
+
+  Object.defineProperty(dragStart, "dataTransfer", {
+    value: new DataTransfer(),
+  });
+
+  Object.defineProperty(drop, "dataTransfer", {
+    value: dragStart.dataTransfer,
+  });
+
+  sourceElement.dispatchEvent(dragStart);
+  targetElement.dispatchEvent(drop);
+  sourceElement.dispatchEvent(new DragEvent("dragend"));
 }
 
 function addAssistantButton() {
@@ -140,13 +194,23 @@ function parseQuestion() {
     questionType = "multiple_select";
   } else if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
     questionType = "fill_in_the_blank";
+  } else if (container.querySelector(".awd-probe-type-matching")) {
+    questionType = "matching";
   }
 
   const promptEl = container.querySelector(".prompt");
   const questionText = promptEl ? promptEl.textContent.trim() : "";
 
   let options = [];
-  if (questionType !== "fill_in_the_blank") {
+  if (questionType === "matching") {
+    const prompts = Array.from(
+      container.querySelectorAll(".match-prompt .content")
+    ).map((el) => el.textContent.trim());
+    const choices = Array.from(
+      container.querySelectorAll(".choices-container .content")
+    ).map((el) => el.textContent.trim());
+    options = { prompts, choices };
+  } else if (questionType !== "fill_in_the_blank") {
     container.querySelectorAll(".choiceText").forEach((el) => {
       options.push(el.textContent.trim());
     });
