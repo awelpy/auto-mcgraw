@@ -17,8 +17,55 @@ function setupMessageListener() {
   chrome.runtime.onMessage.addListener(messageListener);
 }
 
+function handleForcedLearning() {
+  const forcedLearningAlert = document.querySelector(
+    ".forced-learning .alert-error"
+  );
+  if (forcedLearningAlert) {
+    const readButton = document.querySelector(
+      '[data-automation-id="lr-tray_reading-button"]'
+    );
+    if (readButton) {
+      readButton.click();
+
+      waitForElement('[data-automation-id="reading-questions-button"]', 10000)
+        .then((toQuestionsButton) => {
+          toQuestionsButton.click();
+          return waitForElement(".next-button", 10000);
+        })
+        .then((nextButton) => {
+          nextButton.click();
+          if (isAutomating) {
+            setTimeout(() => {
+              const container = document.querySelector(".probe-container");
+              if (container && !container.querySelector(".forced-learning")) {
+                const qData = parseQuestion();
+                if (qData) {
+                  chrome.runtime.sendMessage({
+                    type: "sendQuestionToChatGPT",
+                    question: qData,
+                  });
+                }
+              }
+            }, 1000);
+          }
+        })
+        .catch((error) => {
+          console.error("Error in forced learning flow:", error);
+          isAutomating = false;
+        });
+      return true;
+    }
+  }
+  return false;
+}
+
 function processChatGPTResponse(responseText) {
   try {
+    if (handleForcedLearning()) {
+      return;
+    }
+
     const response = JSON.parse(responseText);
     const answers = Array.isArray(response.answer)
       ? response.answer
