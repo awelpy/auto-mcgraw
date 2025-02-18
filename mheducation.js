@@ -96,9 +96,22 @@ function processChatGPTResponse(responseText) {
           const choiceText = label
             .querySelector(".choiceText")
             ?.textContent.trim();
-          const shouldBeSelected = answers.some((ans) => choiceText === ans);
-          if (shouldBeSelected) {
-            choice.click();
+          if (choiceText) {
+            const shouldBeSelected = answers.some((ans) => {
+              if (choiceText === ans) return true;
+
+              const choiceWithoutPeriod = choiceText.replace(/\.$/, "");
+              const answerWithoutPeriod = ans.replace(/\.$/, "");
+              if (choiceWithoutPeriod === answerWithoutPeriod) return true;
+
+              if (choiceText === ans + ".") return true;
+
+              return false;
+            });
+
+            if (shouldBeSelected) {
+              choice.click();
+            }
           }
         }
       });
