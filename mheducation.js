@@ -31,11 +31,13 @@ function processChatGPTResponse(responseText) {
       const matchingAnswers = answers;
       handleMatchingQuestion(matchingAnswers);
     } else if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
-      const input = container.querySelector("input.fitb-input");
-      if (input) {
-        input.value = answers[0];
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-      }
+      const inputs = container.querySelectorAll("input.fitb-input");
+      inputs.forEach((input, index) => {
+        if (answers[index]) {
+          input.value = answers[index];
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
     } else {
       const choices = container.querySelectorAll(
         'input[type="radio"], input[type="checkbox"]'
@@ -198,8 +200,22 @@ function parseQuestion() {
     questionType = "matching";
   }
 
+  let questionText = "";
   const promptEl = container.querySelector(".prompt");
-  const questionText = promptEl ? promptEl.textContent.trim() : "";
+
+  if (questionType === "fill_in_the_blank" && promptEl) {
+    const promptClone = promptEl.cloneNode(true);
+
+    const inputs = promptClone.querySelectorAll("input.fitb-input");
+    inputs.forEach((input) => {
+      const blankMarker = document.createTextNode("[BLANK]");
+      input.parentNode.replaceChild(blankMarker, input);
+    });
+
+    questionText = promptClone.textContent.trim();
+  } else {
+    questionText = promptEl ? promptEl.textContent.trim() : "";
+  }
 
   let options = [];
   if (questionType === "matching") {

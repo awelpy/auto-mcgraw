@@ -27,6 +27,9 @@ function insertQuestion(questionData) {
       options.choices.map((choice, i) => `${i + 1}. ${choice}`).join("\n");
     text +=
       "\n\nPlease match each prompt with the correct choice. Format your answer as an array where each element is 'Prompt -> Choice'.";
+  } else if (type === "fill_in_the_blank") {
+    text +=
+      "\n\nThis is a fill in the blank question. If there are multiple blanks, provide answers as an array in order of appearance. For a single blank, you can provide a string.";
   } else if (options && options.length > 0) {
     text +=
       "\nOptions:\n" + options.map((opt, i) => `${i + 1}. ${opt}`).join("\n");
