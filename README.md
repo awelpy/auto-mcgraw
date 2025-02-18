@@ -27,7 +27,7 @@
 ## Usage
 
 1. Log into your McGraw Hill account and open a Smartbook assignment
-2. Log into ChatGPT in another tab (the extension requires an active ChatGPT session)
+2. Log into [ChatGPT](https://chatgpt.com) in another tab (the extension requires an active ChatGPT session)
 3. Click the "Ask ChatGPT" button that appears in your Smartbook header
 4. Click "OK" when prompted to begin automation
 5. Watch as the extension:
