@@ -4,9 +4,9 @@
 
 <img src="icon.png" alt="Auto-McGraw Logo" width="200">
 
-[![Release](https://img.shields.io/github/v/release/GooglyBlox/auto-mcgraw?include_prereleases&style=flat-square)](https://github.com/GooglyBlox/auto-mcgraw/releases)
+[![Release](https://img.shields.io/github/v/release/GooglyBlox/auto-mcgraw?include_prereleases&style=flat-square&cache=1)](https://github.com/GooglyBlox/auto-mcgraw/releases)
 [![License](https://img.shields.io/github/license/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/GooglyBlox/auto-mcgraw?style=flat-square)](https://github.com/GooglyBlox/auto-mcgraw/issues)
+[![Issues](https://img.shields.io/github/issues/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](https://github.com/GooglyBlox/auto-mcgraw/issues)
 
 *Automate your McGraw Hill Smartbook homework with ChatGPT integration*
 
