@@ -34,7 +34,8 @@
    - Sends questions to ChatGPT
    - Processes the responses
    - Automatically fills in answers
-   - Handles multiple choice, true/false, matching, and fill-in-the-blank questions
+   - Handles multiple choice, true/false, and fill-in-the-blank questions
+      - **Note about matching questions:** Due to technical limitations, matching questions cannot be automated. When encountering a matching question, the extension will show you ChatGPT's suggested matches in an alert. You'll need to manually drag and drop the matches, then the extension will continue with automation.
    - Navigates through forced learning sections when needed
 
 Click "Stop Automation" at any time to pause the process.

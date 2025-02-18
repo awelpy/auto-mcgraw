@@ -75,8 +75,11 @@ function processChatGPTResponse(responseText) {
     if (!container) return;
 
     if (container.querySelector(".awd-probe-type-matching")) {
-      const matchingAnswers = answers;
-      handleMatchingQuestion(matchingAnswers);
+      alert(
+        "Matching Question Solution:\n\n" +
+          answers.join("\n") +
+          "\n\nPlease input these matches manually, then click high confidence and next."
+      );
     } else if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
       const inputs = container.querySelectorAll("input.fitb-input");
       inputs.forEach((input, index) => {
@@ -149,64 +152,6 @@ function processChatGPTResponse(responseText) {
   } catch (e) {
     console.error("Error processing response:", e);
   }
-}
-
-function handleMatchingQuestion(answers) {
-  const choicesContainer = document.querySelector(".choices-container");
-  const responseContainer = document.querySelector(".responses-container");
-
-  if (!choicesContainer || !responseContainer) return;
-
-  const choiceElements = Array.from(
-    choicesContainer.querySelectorAll(".choice-item-wrapper")
-  );
-  const dropZones = Array.from(
-    responseContainer.querySelectorAll(".match-single-response-wrapper")
-  );
-
-  answers.forEach((answer, index) => {
-    const [prompt, choice] = answer.split(" -> ").map((s) => s.trim());
-    const choiceElement = choiceElements.find(
-      (el) => el.querySelector(".content")?.textContent.trim() === choice
-    );
-
-    if (choiceElement && dropZones[index]) {
-      const rect = dropZones[index].getBoundingClientRect();
-
-      simulateDragDrop(choiceElement, dropZones[index], {
-        clientX: rect.left + rect.width / 2,
-        clientY: rect.top + rect.height / 2,
-      });
-    }
-  });
-}
-
-function simulateDragDrop(sourceElement, targetElement, coordinates) {
-  const dragStart = new DragEvent("dragstart", {
-    bubbles: true,
-    cancelable: true,
-    clientX: coordinates.clientX,
-    clientY: coordinates.clientY,
-  });
-
-  const drop = new DragEvent("drop", {
-    bubbles: true,
-    cancelable: true,
-    clientX: coordinates.clientX,
-    clientY: coordinates.clientY,
-  });
-
-  Object.defineProperty(dragStart, "dataTransfer", {
-    value: new DataTransfer(),
-  });
-
-  Object.defineProperty(drop, "dataTransfer", {
-    value: dragStart.dataTransfer,
-  });
-
-  sourceElement.dispatchEvent(dragStart);
-  targetElement.dispatchEvent(drop);
-  sourceElement.dispatchEvent(new DragEvent("dragend"));
 }
 
 function addAssistantButton() {
