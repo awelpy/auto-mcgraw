@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "McGraw Hill Auto-Smartbook",
+  "name": "Auto-McGraw Smartbook",
   "version": "1.0",
   "description": "Transfers a question from MHEducation's Smartbook to ChatGPT and then uses ChatGPT’s response to auto‐select an answer.",
   "permissions": ["tabs", "scripting"],
