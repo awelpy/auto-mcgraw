@@ -1,6 +1,20 @@
+<div align="center">
+
 # Auto-McGraw (Smartbook)
 
-Automate your McGraw Hill Smartbook homework by leveraging ChatGPT to automatically answer questions.
+<img src="icon.png" alt="Auto-McGraw Logo" width="200">
+
+[![Release](https://img.shields.io/github/v/release/GooglyBlox/auto-mcgraw?include_prereleases&style=flat-square)](https://github.com/GooglyBlox/auto-mcgraw/releases)
+[![License](https://img.shields.io/github/license/GooglyBlox/auto-mcgraw?style=flat-square)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/GooglyBlox/auto-mcgraw?style=flat-square)](https://github.com/GooglyBlox/auto-mcgraw/issues)
+
+*Automate your McGraw Hill Smartbook homework with ChatGPT integration*
+
+[Installation](#installation) • [Usage](#usage) • [Issues](#issues)
+
+</div>
+
+---
 
 ## Installation
 
