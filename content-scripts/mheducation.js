@@ -172,7 +172,12 @@ function addAssistantButton() {
       btn.addEventListener("click", () => {
         if (isAutomating) {
           isAutomating = false;
-          btn.textContent = `Ask ${modelName}`;
+          chrome.storage.sync.get("aiModel", function (data) {
+            const currentModel = data.aiModel || "chatgpt";
+            const currentModelName =
+              currentModel === "chatgpt" ? "ChatGPT" : "Gemini";
+            btn.textContent = `Ask ${currentModelName}`;
+          });
         } else {
           const proceed = confirm(
             "Start automated answering? Click OK to begin, or Cancel to stop."

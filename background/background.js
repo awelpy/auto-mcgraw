@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === "openSettings") {
     chrome.windows.create({
-      url: chrome.runtime.getURL("settings.html"),
+      url: chrome.runtime.getURL("popup/settings.html"),
       type: "popup",
       width: 400,
       height: 520,
