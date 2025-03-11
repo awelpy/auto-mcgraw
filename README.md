@@ -8,9 +8,9 @@
 [![License](https://img.shields.io/github/license/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](https://github.com/GooglyBlox/auto-mcgraw/issues)
 
-*Automate your McGraw Hill Smartbook homework with ChatGPT integration*
+*Automate your McGraw Hill Smartbook homework with AI integration (ChatGPT & Gemini)*
 
-[Installation](#installation) • [Usage](#usage) • [Issues](#issues)
+[Installation](#installation) • [Usage](#usage) • [Settings](#settings) • [Issues](#issues)
 
 </div>
 
@@ -27,18 +27,28 @@
 ## Usage
 
 1. Log into your McGraw Hill account and open a Smartbook assignment
-2. Log into [ChatGPT](https://chatgpt.com) in another tab (the extension requires an active ChatGPT session)
-3. Click the "Ask ChatGPT" button that appears in your Smartbook header
+2. Log into [ChatGPT](https://chatgpt.com) or [Gemini](https://gemini.google.com) in another tab (the extension requires an active AI session)
+3. Click the "Ask [AI Model]" button that appears in your Smartbook header
 4. Click "OK" when prompted to begin automation
 5. Watch as the extension:
-   - Sends questions to ChatGPT
+   - Sends questions to your chosen AI assistant
    - Processes the responses
    - Automatically fills in answers
    - Handles multiple choice, true/false, and fill-in-the-blank questions
-      - **Note about matching questions:** Due to technical limitations, matching questions cannot be automated. When encountering a matching question, the extension will show you ChatGPT's suggested matches in an alert. You'll need to manually drag and drop the matches, then the extension will continue with automation.
+      - **Note about matching questions:** Due to technical limitations, matching questions cannot be automated. When encountering a matching question, the extension will show you AI-suggested matches in an alert. You'll need to manually drag and drop the matches, then the extension will continue with automation.
    - Navigates through forced learning sections when needed
 
 Click "Stop Automation" at any time to pause the process.
+
+## Settings
+
+Click the settings icon (⚙️) next to the main button to access the settings menu, where you can:
+
+- Choose between **ChatGPT** and **Gemini** for answering questions
+- See the status of your AI assistant connections
+- Check if your selected AI assistant is ready to use
+
+The extension will automatically use your selected AI model for all future automation sessions.
 
 ## Disclaimer
 
