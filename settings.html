@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto-McGraw Settings</title>
+    <link rel="stylesheet" href="settings.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <img src="icon.png" alt="Auto-McGraw Logo" class="logo" />
+        <h1>Auto-McGraw Settings</h1>
+      </header>
+
+      <div class="settings-section">
+        <h2>AI Assistant</h2>
+        <p>Select which AI assistant to use for answering questions.</p>
+
+        <div class="model-selector">
+          <button id="chatgpt" class="model-button active">
+            <div class="model-icon chatgpt-icon"></div>
+            <div class="model-details">
+              <h3>ChatGPT</h3>
+              <p>OpenAI's ChatGPT model</p>
+            </div>
+          </button>
+
+          <button id="gemini" class="model-button">
+            <div class="model-icon gemini-icon"></div>
+            <div class="model-details">
+              <h3>Gemini</h3>
+              <p>Google's Gemini model</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="status-section">
+          <h3>Status</h3>
+          <div id="status-message">Checking assistant availability...</div>
+        </div>
+      </div>
+
+      <footer>
+        <p>Auto-McGraw v1.5 by GooglyBlox</p>
+        <a href="https://github.com/GooglyBlox/auto-mcgraw" target="_blank"
+          >GitHub</a
+        >
+      </footer>
+    </div>
+    <script src="settings.js"></script>
+  </body>
+</html>

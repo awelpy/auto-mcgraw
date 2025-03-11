@@ -17,18 +17,36 @@ function sendMessageWithRetry(tabId, message, maxAttempts = 3, delay = 1000) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "sendQuestionToChatGPT") {
-    chrome.tabs.query({ url: "https://chatgpt.com/*" }, (chatgptTabs) => {
-      if (chatgptTabs.length > 0) {
-        sendMessageWithRetry(chatgptTabs[0].id, {
-          type: "receiveQuestion",
-          question: message.question,
+    chrome.storage.sync.get("aiModel", function (data) {
+      const aiModel = data.aiModel || "chatgpt";
+
+      if (aiModel === "chatgpt") {
+        chrome.tabs.query({ url: "https://chatgpt.com/*" }, (chatgptTabs) => {
+          if (chatgptTabs.length > 0) {
+            sendMessageWithRetry(chatgptTabs[0].id, {
+              type: "receiveQuestion",
+              question: message.question,
+            });
+          }
         });
+      } else {
+        chrome.tabs.query(
+          { url: "https://gemini.google.com/*" },
+          (geminiTabs) => {
+            if (geminiTabs.length > 0) {
+              sendMessageWithRetry(geminiTabs[0].id, {
+                type: "receiveQuestion",
+                question: message.question,
+              });
+            }
+          }
+        );
       }
     });
     return true;
   }
 
-  if (message.type === "chatGPTResponse") {
+  if (message.type === "chatGPTResponse" || message.type === "geminiResponse") {
     chrome.tabs.query(
       { url: "https://learning.mheducation.com/*" },
       (mheTabs) => {
@@ -40,6 +58,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
     );
+    return true;
+  }
+
+  if (message.type === "openSettings") {
+    chrome.windows.create({
+      url: chrome.runtime.getURL("settings.html"),
+      type: "popup",
+      width: 400,
+      height: 520,
+    });
     return true;
   }
 });

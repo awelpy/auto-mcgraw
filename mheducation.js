@@ -156,32 +156,72 @@ function processChatGPTResponse(responseText) {
 
 function addAssistantButton() {
   waitForElement("awd-header .header__navigation").then((headerNav) => {
-    const btn = document.createElement("button");
-    btn.textContent = "Ask ChatGPT";
-    btn.style.marginLeft = "10px";
-    btn.classList.add("btn", "btn-secondary");
-    btn.addEventListener("click", () => {
-      if (isAutomating) {
-        isAutomating = false;
-        btn.textContent = "Ask ChatGPT";
-      } else {
-        const proceed = confirm(
-          "Start automated answering? Click OK to begin, or Cancel to stop."
-        );
-        if (proceed) {
-          isAutomating = true;
-          btn.textContent = "Stop Automation";
-          const qData = parseQuestion();
-          if (qData) {
-            chrome.runtime.sendMessage({
-              type: "sendQuestionToChatGPT",
-              question: qData,
-            });
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.marginLeft = "10px";
+
+    chrome.storage.sync.get("aiModel", function (data) {
+      const aiModel = data.aiModel || "chatgpt";
+      const modelName = aiModel === "chatgpt" ? "ChatGPT" : "Gemini";
+
+      const btn = document.createElement("button");
+      btn.textContent = `Ask ${modelName}`;
+      btn.classList.add("btn", "btn-secondary");
+      btn.style.borderTopRightRadius = "0";
+      btn.style.borderBottomRightRadius = "0";
+      btn.addEventListener("click", () => {
+        if (isAutomating) {
+          isAutomating = false;
+          btn.textContent = `Ask ${modelName}`;
+        } else {
+          const proceed = confirm(
+            "Start automated answering? Click OK to begin, or Cancel to stop."
+          );
+          if (proceed) {
+            isAutomating = true;
+            btn.textContent = "Stop Automation";
+            const qData = parseQuestion();
+            if (qData) {
+              chrome.runtime.sendMessage({
+                type: "sendQuestionToChatGPT",
+                question: qData,
+              });
+            }
           }
         }
-      }
+      });
+
+      const settingsBtn = document.createElement("button");
+      settingsBtn.classList.add("btn", "btn-secondary");
+      settingsBtn.style.borderTopLeftRadius = "0";
+      settingsBtn.style.borderBottomLeftRadius = "0";
+      settingsBtn.style.borderLeft = "1px solid rgba(0,0,0,0.2)";
+      settingsBtn.style.padding = "6px 10px";
+      settingsBtn.title = "Auto-McGraw Settings";
+      settingsBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      `;
+      settingsBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ type: "openSettings" });
+      });
+
+      buttonContainer.appendChild(btn);
+      buttonContainer.appendChild(settingsBtn);
+      headerNav.appendChild(buttonContainer);
+
+      chrome.storage.onChanged.addListener((changes) => {
+        if (changes.aiModel) {
+          const newModel = changes.aiModel.newValue;
+          const newModelName = newModel === "chatgpt" ? "ChatGPT" : "Gemini";
+          if (!isAutomating) {
+            btn.textContent = `Ask ${newModelName}`;
+          }
+        }
+      });
     });
-    headerNav.appendChild(btn);
   });
 }
 
