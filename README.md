@@ -45,7 +45,7 @@ Click "Stop Automation" at any time to pause the process.
 
 ## Settings
 
-Click the settings icon (⚙️) next to the main button to access the settings menu, where you can:
+Click the settings icon ( <img src="assets/settings-icon.svg" alt="Settings Icon" style="vertical-align: middle; width: 16px; height: 16px;"> ) next to the main button to access the settings menu, where you can:
 
 - Choose between **ChatGPT**, **Gemini**, or **DeepSeek** for answering questions
 - See the status of your AI assistant connections
