@@ -38,7 +38,7 @@ function insertQuestion(questionData) {
   }
 
   text +=
-    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation".';
+    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation". Explanations should be no more than one sentence.';
 
   const inputArea = document.getElementById("prompt-textarea");
   if (inputArea) {
@@ -99,7 +99,9 @@ function startObserving() {
         });
         observer.disconnect();
       }
-    } catch (e) {}
+    } catch (e) {
+      // Not yet a valid JSON or still generating
+    }
   });
 
   observer.observe(document.body, { childList: true, subtree: true });

@@ -36,7 +36,7 @@ function insertQuestion(questionData) {
   }
 
   text +=
-    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation".';
+    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation". Explanations should be no more than one sentence.';
 
   const inputArea = document.querySelector(".ql-editor");
   if (inputArea) {

@@ -162,7 +162,13 @@ function addAssistantButton() {
 
     chrome.storage.sync.get("aiModel", function (data) {
       const aiModel = data.aiModel || "chatgpt";
-      const modelName = aiModel === "chatgpt" ? "ChatGPT" : "Gemini";
+      let modelName = "ChatGPT";
+
+      if (aiModel === "gemini") {
+        modelName = "Gemini";
+      } else if (aiModel === "deepseek") {
+        modelName = "DeepSeek";
+      }
 
       const btn = document.createElement("button");
       btn.textContent = `Ask ${modelName}`;
@@ -174,8 +180,14 @@ function addAssistantButton() {
           isAutomating = false;
           chrome.storage.sync.get("aiModel", function (data) {
             const currentModel = data.aiModel || "chatgpt";
-            const currentModelName =
-              currentModel === "chatgpt" ? "ChatGPT" : "Gemini";
+            let currentModelName = "ChatGPT";
+
+            if (currentModel === "gemini") {
+              currentModelName = "Gemini";
+            } else if (currentModel === "deepseek") {
+              currentModelName = "DeepSeek";
+            }
+
             btn.textContent = `Ask ${currentModelName}`;
           });
         } else {
@@ -220,7 +232,14 @@ function addAssistantButton() {
       chrome.storage.onChanged.addListener((changes) => {
         if (changes.aiModel) {
           const newModel = changes.aiModel.newValue;
-          const newModelName = newModel === "chatgpt" ? "ChatGPT" : "Gemini";
+          let newModelName = "ChatGPT";
+
+          if (newModel === "gemini") {
+            newModelName = "Gemini";
+          } else if (newModel === "deepseek") {
+            newModelName = "DeepSeek";
+          }
+
           if (!isAutomating) {
             btn.textContent = `Ask ${newModelName}`;
           }

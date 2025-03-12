@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
           }
         });
-      } else {
+      } else if (aiModel === "gemini") {
         chrome.tabs.query(
           { url: "https://gemini.google.com/*" },
           (geminiTabs) => {
@@ -41,12 +41,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
           }
         );
+      } else if (aiModel === "deepseek") {
+        chrome.tabs.query(
+          { url: "https://chat.deepseek.com/*" }, 
+          (deepseekTabs) => {
+            if (deepseekTabs.length > 0) {
+              sendMessageWithRetry(deepseekTabs[0].id, {
+                type: "receiveQuestion",
+                question: message.question,
+              });
+            }
+          }
+        );
       }
     });
     return true;
   }
 
-  if (message.type === "chatGPTResponse" || message.type === "geminiResponse") {
+  if (
+    message.type === "chatGPTResponse" ||
+    message.type === "geminiResponse" ||
+    message.type === "deepseekResponse"
+  ) {
     chrome.tabs.query(
       { url: "https://learning.mheducation.com/*" },
       (mheTabs) => {
@@ -65,7 +81,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.windows.create({
       url: chrome.runtime.getURL("popup/settings.html"),
       type: "popup",
-      width: 400,
+      width: 500,
       height: 520,
     });
     return true;

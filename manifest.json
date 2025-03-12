@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Auto-McGraw Smartbook",
-  "version": "1.5",
+  "version": "1.6",
   "description": "Transfers a question from MHEducation's Smartbook to AI assistants and then uses their response to auto‐select an answer.",
   "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": [
     "https://learning.mheducation.com/*",
     "https://chatgpt.com/*",
-    "https://gemini.google.com/*"
+    "https://gemini.google.com/*",
+    "https://deepseek.chat/*"
   ],
   "background": {
     "service_worker": "background/background.js"
@@ -31,6 +32,10 @@
     {
       "matches": ["https://gemini.google.com/*"],
       "js": ["content-scripts/gemini.js"]
+    },
+    {
+      "matches": ["https://chat.deepseek.com/*"],
+      "js": ["content-scripts/deepseek.js"]
     }
   ],
   "web_accessible_resources": [
