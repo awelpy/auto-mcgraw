@@ -2,7 +2,7 @@
 
 # Auto-McGraw (Smartbook)
 
-<img src="icon.png" alt="Auto-McGraw Logo" width="200">
+<img src="assets/icon.png" alt="Auto-McGraw Logo" width="200">
 
 [![Release](https://img.shields.io/github/v/release/GooglyBlox/auto-mcgraw?include_prereleases&style=flat-square&cache=1)](https://github.com/GooglyBlox/auto-mcgraw/releases)
 [![License](https://img.shields.io/github/license/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](LICENSE)
