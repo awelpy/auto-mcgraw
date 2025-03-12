@@ -20,8 +20,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function insertQuestion(questionData) {
-  const { type, question, options } = questionData;
+  const { type, question, options, previousCorrection } = questionData;
   let text = `Type: ${type}\nQuestion: ${question}`;
+
+  if (
+    previousCorrection &&
+    previousCorrection.question &&
+    previousCorrection.correctAnswer
+  ) {
+    text =
+      `CORRECTION FROM PREVIOUS ANSWER: For the question "${
+        previousCorrection.question
+      }", your answer was incorrect. The correct answer was: ${JSON.stringify(
+        previousCorrection.correctAnswer
+      )}\n\nNow answer this new question:\n\n` + text;
+  }
 
   if (type === "matching") {
     text +=
@@ -43,7 +56,7 @@ function insertQuestion(questionData) {
   }
 
   text +=
-    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation". Explanations should be no more than one sentence.';
+    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation". Explanations should be no more than one sentence. DO NOT acknowledge the correction in your response, only answer the new question.';
 
   const chatInput = document.getElementById("chat-input");
   if (chatInput) {

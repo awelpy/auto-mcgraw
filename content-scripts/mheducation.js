@@ -1,5 +1,7 @@
 let messageListener = null;
 let isAutomating = false;
+let lastIncorrectQuestion = null;
+let lastCorrectAnswer = null;
 
 function setupMessageListener() {
   if (messageListener) {
@@ -60,6 +62,168 @@ function handleForcedLearning() {
   return false;
 }
 
+function extractCorrectAnswer() {
+  const container = document.querySelector(".probe-container");
+  if (!container) return null;
+
+  const incorrectMarker = container.querySelector(
+    ".awd-probe-correctness.incorrect"
+  );
+  if (!incorrectMarker) return null;
+
+  let questionType = "";
+  if (container.querySelector(".awd-probe-type-multiple_choice")) {
+    questionType = "multiple_choice";
+  } else if (container.querySelector(".awd-probe-type-true_false")) {
+    questionType = "true_false";
+  } else if (container.querySelector(".awd-probe-type-multiple_select")) {
+    questionType = "multiple_select";
+  } else if (container.querySelector(".awd-probe-type-fill_in_the_blank")) {
+    questionType = "fill_in_the_blank";
+  } else if (container.querySelector(".awd-probe-type-matching")) {
+    questionType = "matching";
+  }
+
+  let questionText = "";
+  const promptEl = container.querySelector(".prompt");
+
+  if (questionType === "fill_in_the_blank" && promptEl) {
+    const promptClone = promptEl.cloneNode(true);
+
+    const spans = promptClone.querySelectorAll(
+      "span.response-container, span.fitb-span, span.blank-label, span.correctness, span._visuallyHidden"
+    );
+    spans.forEach((span) => span.remove());
+
+    const inputs = promptClone.querySelectorAll("input.fitb-input");
+    inputs.forEach((input) => {
+      const blankMarker = document.createTextNode("[BLANK]");
+      input.parentNode.replaceChild(blankMarker, input);
+    });
+
+    questionText = promptClone.textContent.trim();
+  } else {
+    questionText = promptEl ? promptEl.textContent.trim() : "";
+  }
+
+  let correctAnswer = null;
+
+  if (questionType === "multiple_choice" || questionType === "true_false") {
+    try {
+      const answerContainer = container.querySelector(
+        ".answer-container .choiceText"
+      );
+      if (answerContainer) {
+        correctAnswer = answerContainer.textContent.trim();
+      } else {
+        const correctAnswerContainer = container.querySelector(
+          ".correct-answer-container"
+        );
+        if (correctAnswerContainer) {
+          const answerText =
+            correctAnswerContainer.querySelector(".choiceText");
+          if (answerText) {
+            correctAnswer = answerText.textContent.trim();
+          } else {
+            const answerDiv = correctAnswerContainer.querySelector(".choice");
+            if (answerDiv) {
+              correctAnswer = answerDiv.textContent.trim();
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error extracting multiple choice answer:", e);
+    }
+  } else if (questionType === "multiple_select") {
+    try {
+      const correctAnswersList = container.querySelectorAll(
+        ".correct-answer-container .choice"
+      );
+      if (correctAnswersList && correctAnswersList.length > 0) {
+        correctAnswer = Array.from(correctAnswersList).map((el) => {
+          const choiceText = el.querySelector(".choiceText");
+          return choiceText
+            ? choiceText.textContent.trim()
+            : el.textContent.trim();
+        });
+      }
+    } catch (e) {
+      console.error("Error extracting multiple select answers:", e);
+    }
+  } else if (questionType === "fill_in_the_blank") {
+    try {
+      const correctAnswersList = container.querySelectorAll(".correct-answers");
+
+      if (correctAnswersList && correctAnswersList.length > 0) {
+        if (correctAnswersList.length === 1) {
+          const correctAnswerEl =
+            correctAnswersList[0].querySelector(".correct-answer");
+          if (correctAnswerEl) {
+            correctAnswer = correctAnswerEl.textContent.trim();
+          } else {
+            const answerText = correctAnswersList[0].textContent.trim();
+            if (answerText) {
+              const match = answerText.match(/:\s*(.+)$/);
+              correctAnswer = match ? match[1].trim() : answerText;
+            }
+          }
+        } else {
+          correctAnswer = Array.from(correctAnswersList).map((field) => {
+            const correctAnswerEl = field.querySelector(".correct-answer");
+            if (correctAnswerEl) {
+              return correctAnswerEl.textContent.trim();
+            } else {
+              const answerText = field.textContent.trim();
+              const match = answerText.match(/:\s*(.+)$/);
+              return match ? match[1].trim() : answerText;
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Error extracting fill in the blank answers:", e);
+    }
+  }
+
+  if (questionType === "matching") {
+    return null;
+  }
+
+  if (correctAnswer === null) {
+    console.error("Failed to extract correct answer for", questionType);
+    return null;
+  }
+
+  return {
+    question: questionText,
+    answer: correctAnswer,
+    type: questionType,
+  };
+}
+
+function cleanAnswer(answer) {
+  if (!answer) return answer;
+
+  if (Array.isArray(answer)) {
+    return answer.map((item) => cleanAnswer(item));
+  }
+
+  if (typeof answer === "string") {
+    let cleanedAnswer = answer.trim();
+
+    cleanedAnswer = cleanedAnswer.replace(/^Field \d+:\s*/, "");
+
+    if (cleanedAnswer.includes(" or ")) {
+      cleanedAnswer = cleanedAnswer.split(" or ")[0].trim();
+    }
+
+    return cleanedAnswer;
+  }
+
+  return answer;
+}
+
 function processChatGPTResponse(responseText) {
   try {
     if (handleForcedLearning()) {
@@ -73,6 +237,9 @@ function processChatGPTResponse(responseText) {
 
     const container = document.querySelector(".probe-container");
     if (!container) return;
+
+    lastIncorrectQuestion = null;
+    lastCorrectAnswer = null;
 
     if (container.querySelector(".awd-probe-type-matching")) {
       alert(
@@ -127,21 +294,43 @@ function processChatGPTResponse(responseText) {
       )
         .then((button) => {
           button.click();
-          return waitForElement(".next-button", 10000);
-        })
-        .then((nextButton) => {
-          nextButton.click();
+
           setTimeout(() => {
-            const container = document.querySelector(".probe-container");
-            if (container && isAutomating) {
-              const qData = parseQuestion();
-              if (qData) {
-                chrome.runtime.sendMessage({
-                  type: "sendQuestionToChatGPT",
-                  question: qData,
-                });
+            const incorrectMarker = container.querySelector(
+              ".awd-probe-correctness.incorrect"
+            );
+            if (incorrectMarker) {
+              const correctionData = extractCorrectAnswer();
+              if (correctionData && correctionData.answer) {
+                lastIncorrectQuestion = correctionData.question;
+                lastCorrectAnswer = cleanAnswer(correctionData.answer);
+                console.log(
+                  "Found incorrect answer. Correct answer is:",
+                  lastCorrectAnswer
+                );
               }
             }
+
+            waitForElement(".next-button", 10000)
+              .then((nextButton) => {
+                nextButton.click();
+                setTimeout(() => {
+                  const container = document.querySelector(".probe-container");
+                  if (container && isAutomating) {
+                    const qData = parseQuestion();
+                    if (qData) {
+                      chrome.runtime.sendMessage({
+                        type: "sendQuestionToChatGPT",
+                        question: qData,
+                      });
+                    }
+                  }
+                }, 1000);
+              })
+              .catch((error) => {
+                console.error("Automation error:", error);
+                isAutomating = false;
+              });
           }, 1000);
         })
         .catch((error) => {
@@ -275,10 +464,17 @@ function parseQuestion() {
   if (questionType === "fill_in_the_blank" && promptEl) {
     const promptClone = promptEl.cloneNode(true);
 
+    const uiSpans = promptClone.querySelectorAll(
+      "span.fitb-span, span.blank-label, span.correctness, span._visuallyHidden"
+    );
+    uiSpans.forEach((span) => span.remove());
+
     const inputs = promptClone.querySelectorAll("input.fitb-input");
     inputs.forEach((input) => {
       const blankMarker = document.createTextNode("[BLANK]");
-      input.parentNode.replaceChild(blankMarker, input);
+      if (input.parentNode) {
+        input.parentNode.replaceChild(blankMarker, input);
+      }
     });
 
     questionText = promptClone.textContent.trim();
@@ -301,7 +497,17 @@ function parseQuestion() {
     });
   }
 
-  return { type: questionType, question: questionText, options: options };
+  return {
+    type: questionType,
+    question: questionText,
+    options: options,
+    previousCorrection: lastIncorrectQuestion
+      ? {
+          question: lastIncorrectQuestion,
+          correctAnswer: lastCorrectAnswer,
+        }
+      : null,
+  };
 }
 
 function waitForElement(selector, timeout = 5000) {
