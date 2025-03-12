@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/GooglyBlox/auto-mcgraw?style=flat-square&cache=1)](https://github.com/GooglyBlox/auto-mcgraw/issues)
 
-*Automate your McGraw Hill Smartbook homework with AI integration (ChatGPT & Gemini)*
+*Automate your McGraw Hill Smartbook homework with AI integration (ChatGPT, Gemini & DeepSeek)*
 
 [Installation](#installation) • [Usage](#usage) • [Settings](#settings) • [Issues](#issues)
 
@@ -27,7 +27,10 @@
 ## Usage
 
 1. Log into your McGraw Hill account and open a Smartbook assignment
-2. Log into [ChatGPT](https://chatgpt.com) or [Gemini](https://gemini.google.com) in another tab (the extension requires an active AI session)
+2. Log into one of the supported AI assistants in another tab:
+   - [ChatGPT](https://chatgpt.com)
+   - [Gemini](https://gemini.google.com)
+   - [DeepSeek](https://chat.deepseek.com)
 3. Click the "Ask [AI Model]" button that appears in your Smartbook header
 4. Click "OK" when prompted to begin automation
 5. Watch as the extension:
@@ -44,7 +47,7 @@ Click "Stop Automation" at any time to pause the process.
 
 Click the settings icon (⚙️) next to the main button to access the settings menu, where you can:
 
-- Choose between **ChatGPT** and **Gemini** for answering questions
+- Choose between **ChatGPT**, **Gemini**, or **DeepSeek** for answering questions
 - See the status of your AI assistant connections
 - Check if your selected AI assistant is ready to use
 
