@@ -78,7 +78,7 @@ async function insertQuestion(questionData) {
   }
 
   text +=
-    '\n\nPlease provide your answer in JSON format with keys "answer" and "explanation". Explanations should be no more than one sentence. DO NOT acknowledge the correction in your response, only answer the new question.';
+    '\n\nYou MUST provide your answer in JSON format with keys "answer" and "explanation". Format your response as a valid JSON object. Explanations should be no more than one sentence. DO NOT acknowledge the correction in your response, only answer the new question. Use code block with JSON syntax highlighting for your response.';
 
   return new Promise((resolve, reject) => {
     const chatInput = document.getElementById("chat-input");
@@ -169,27 +169,37 @@ function checkForResponse() {
   const newMessages = Array.from(messages).slice(messageCountAtQuestion);
 
   for (const message of newMessages) {
-    const codeBlocks = message.querySelectorAll(".md-code-block");
+    const codeBlocks = message.querySelectorAll(".md-code-block, pre, code");
 
     for (const block of codeBlocks) {
       const infoString = block.querySelector(".md-code-block-infostring");
-      if (infoString && infoString.textContent.includes("json")) {
+      if (infoString && (infoString.textContent.includes("json") || infoString.textContent.includes("JSON"))) {
         const preElement = block.querySelector("pre");
         if (preElement) {
           const responseText = preElement.textContent.trim();
+          if (processResponse(responseText)) return;
+        }
+      } else {
+        const responseText = block.textContent.trim();
+        if (responseText.startsWith("{") && responseText.endsWith("}")) {
           if (processResponse(responseText)) return;
         }
       }
     }
 
     const messageText = message.textContent.trim();
-    const jsonMatch = messageText.match(/\{[\s\S]*\}/);
+    const jsonMatch = messageText.match(/\{[\s\S]*?\}/g);
     if (jsonMatch) {
-      const responseText = jsonMatch[0];
-      if (processResponse(responseText)) return;
+      for (const match of jsonMatch) {
+        if (processResponse(match)) return;
+      }
     }
 
-    if (Date.now() - observationStartTime > 30000) {
+    const isGenerating = message.classList.contains("generating") ||
+                         message.querySelector(".cursor") ||
+                         message.querySelector(".loading");
+
+    if (!isGenerating && Date.now() - observationStartTime > 10000) {
       try {
         const jsonPattern = /\{[\s\S]*?"answer"[\s\S]*?"explanation"[\s\S]*?\}/;
         const jsonMatch = messageText.match(jsonPattern);
